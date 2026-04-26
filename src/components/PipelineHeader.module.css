@@ -19,27 +19,16 @@
   flex-shrink: 0;
 }
 
-.logo {
-  font-size: 1.5rem;
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.logoImage {
+  /* Let the SVG define its own rounded corners */
 }
 
 .title {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
-}
-
-.ai {
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-left: 1px;
+  text-transform: lowercase;
 }
 
 .pipeline {

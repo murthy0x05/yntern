@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * TalentScope AI — Main Page Orchestrator
+ * yntern — Main Page Orchestrator
  * Manages the 5-stage AI talent scouting pipeline.
  */
 import { useState, useCallback } from "react";

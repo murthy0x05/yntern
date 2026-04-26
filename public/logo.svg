@@ -1,0 +1,31 @@
+<svg viewBox="0 0 215 215" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+        </linearGradient>
+        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity="0.1" />
+        </filter>
+    </defs>
+
+    <!-- White background card with rounded corners and shadow -->
+    <rect x="15" y="15" width="185" height="185" rx="40" fill="#ffffff" filter="url(#shadow)" />
+
+    <!-- Group to center and scale the original icon inside the new card -->
+    <g transform="translate(15, 15) scale(1.2)">
+        <!-- Magnifying Glass Handle -->
+        <rect x="145" y="125" width="12" height="40" rx="6" fill="#1e293b" transform="rotate(-45 145 125)" />
+
+        <!-- Left Circle (Navy/Blue) -->
+        <circle cx="85" cy="85" r="45" fill="#004080" opacity="0.85" />
+
+        <!-- Right Circle (Teal) -->
+        <circle cx="115" cy="85" r="45" fill="#00D1C1" opacity="0.85" />
+
+        <!-- Intersection Star (White) -->
+        <path d="M100 68 L104.5 78.5 L115.5 79.5 L107.5 87 L110 98 L100 92 L90 98 L92.5 87 L84.5 79.5 L95.5 78.5 Z" 
+              fill="white" 
+              stroke-linejoin="round" />
+    </g>
+</svg>

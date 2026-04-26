@@ -6,6 +6,7 @@
  */
 import styles from "./PipelineHeader.module.css";
 import ThemeToggle from "./ThemeToggle";
+import Image from "next/image";
 
 const STAGES = [
   { id: 1, label: "JD Input", icon: "📄", description: "Paste or upload a job description" },
@@ -19,8 +20,8 @@ export default function PipelineHeader({ currentStage = 1, onStageClick }) {
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
-        <span className={styles.logo}>◆</span>
-        <h1 className={styles.title}>TalentScope<span className={styles.ai}>AI</span></h1>
+        <Image src="/logo.svg" alt="yntern logo" width={28} height={28} className={styles.logoImage} />
+        <h1 className={styles.title}>yntern</h1>
       </div>
       <nav className={styles.pipeline} aria-label="Pipeline stages">
         {STAGES.map((stage, i) => {

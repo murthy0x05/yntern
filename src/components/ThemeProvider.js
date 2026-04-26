@@ -21,7 +21,7 @@ export default function ThemeProvider({ children }) {
 
   // Read saved theme on mount
   useEffect(() => {
-    const saved = localStorage.getItem("talentscope-theme");
+    const saved = localStorage.getItem("yntern-theme");
     if (saved === "light" || saved === "dark") {
       setTheme(saved);
     } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
@@ -34,7 +34,7 @@ export default function ThemeProvider({ children }) {
   useEffect(() => {
     if (!mounted) return;
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("talentscope-theme", theme);
+    localStorage.setItem("yntern-theme", theme);
   }, [theme, mounted]);
 
   const toggleTheme = useCallback(() => {
