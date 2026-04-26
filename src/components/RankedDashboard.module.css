@@ -1,0 +1,235 @@
+.container {
+  padding: var(--space-xl);
+  max-width: 1280px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s var(--ease-out);
+}
+
+/* Stats */
+.statsBar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.stat {
+  text-align: center;
+  padding: var(--space-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.statValue {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--accent-light);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.sortGroup,
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.controlLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.slider {
+  width: 120px;
+  accent-color: var(--accent);
+}
+
+.filterValue {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--accent-light);
+  min-width: 30px;
+}
+
+/* Table */
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: var(--space-md) var(--space-md);
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.thSelect { width: 40px; }
+.thRank { width: 40px; }
+.thScore { width: 70px; text-align: center; }
+.thActions { width: 100px; }
+
+.row {
+  animation: fadeIn 0.4s var(--ease-out) both;
+  transition: background var(--duration-fast);
+}
+
+.row:hover {
+  background: var(--bg-card-hover);
+}
+
+.rowSelected {
+  background: var(--accent-glow) !important;
+}
+
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+.checkbox {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.rank {
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--accent-light);
+  font-size: 0.8125rem;
+}
+
+.candidateCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.candidateAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.candidateName {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.candidateRole {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.scoreCell {
+  text-align: center;
+}
+
+.combinedScore {
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+.pending {
+  color: var(--text-dim);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.empty {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Selection Bar */
+.selectionBar {
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s var(--ease-out);
+  z-index: 50;
+}
+
+@media (max-width: 768px) {
+  .statsBar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table {
+    font-size: 0.8125rem;
+  }
+}

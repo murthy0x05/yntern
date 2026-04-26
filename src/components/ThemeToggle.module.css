@@ -1,0 +1,36 @@
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.toggle:hover {
+  border-color: var(--border-accent);
+  color: var(--accent-light);
+  background: var(--accent-glow);
+  transform: scale(1.05);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.dark {
+  transform: rotate(0deg);
+}
+
+.light {
+  transform: rotate(90deg);
+}
