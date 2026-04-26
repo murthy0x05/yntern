@@ -22,7 +22,14 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
+*.swp
+*.swo
+
+# IDEs and Editors
+.idea/
+.vscode/
 
 # debug
 npm-debug.log*
@@ -40,4 +47,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.implementation_plan.md
+implementation_plan.md
