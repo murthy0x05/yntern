@@ -4,11 +4,11 @@
  * RankedDashboard — Final ranked shortlist with filters, sorting, and candidate comparison.
  * Step 5 of the pipeline — the recruiter's action center.
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import styles from "./RankedDashboard.module.css";
 import ScoreGauge from "./ScoreGauge";
 
-export default function RankedDashboard({ candidates, onViewOutreach }) {
+export default function RankedDashboard({ candidates, onViewOutreach, onSendAssessment }) {
   const [sortBy, setSortBy] = useState("combined");
   const [filterMinScore, setFilterMinScore] = useState(0);
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -61,6 +61,50 @@ export default function RankedDashboard({ candidates, onViewOutreach }) {
     };
   }, [candidates]);
 
+  // ── CSV Export ──
+  const handleExportCSV = useCallback(() => {
+    if (!sorted.length) return;
+
+    const headers = [
+      "Rank",
+      "Name",
+      "Current Role",
+      "Company",
+      "Experience (yrs)",
+      "Match Score",
+      "Interest Score",
+      "Combined Score",
+      "Matched Skills",
+      "Availability",
+      "Location",
+    ];
+
+    const rows = sorted.map((c, i) => [
+      i + 1,
+      c.name,
+      c.current_role || "",
+      c.current_company || "",
+      c.experience_years || "",
+      c.score?.match_score || "",
+      c.outreach?.interest_score || "",
+      c.combined_score || "",
+      `"${(c.score?.matched_skills || []).join(", ")}"`,
+      c.availability || "",
+      c.location || "",
+    ]);
+
+    const csvContent =
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `yntern-shortlist-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [sorted]);
+
   return (
     <div className={styles.container}>
       {/* Stats Bar */}
@@ -110,6 +154,13 @@ export default function RankedDashboard({ candidates, onViewOutreach }) {
           />
           <span className={styles.filterValue}>{filterMinScore}+</span>
         </div>
+        <button
+          className="btn btn-secondary btn-sm"
+          onClick={handleExportCSV}
+          title="Export shortlist as CSV"
+        >
+          Export CSV
+        </button>
       </div>
 
       {/* Table */}
@@ -236,7 +287,14 @@ export default function RankedDashboard({ candidates, onViewOutreach }) {
                           : "Simulate outreach"
                       }
                     >
-                      {c.outreach ? "💬 View" : "💬 Simulate"}
+                      {c.outreach ? "View Chat" : "Simulate"}
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => onSendAssessment?.(c)}
+                      title="Send assessment link to candidate"
+                    >
+                      Assess
                     </button>
                   </td>
                 </tr>

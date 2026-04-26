@@ -1,28 +1,21 @@
 "use client";
 
 /**
- * PipelineHeader — 5-stage step indicator showing pipeline progress.
- * Each stage lights up as the agent progresses through the pipeline.
+ * PipelineHeader — Floating bubble-style step indicator below the navbar.
  */
 import styles from "./PipelineHeader.module.css";
-import ThemeToggle from "./ThemeToggle";
-import Image from "next/image";
 
 const STAGES = [
-  { id: 1, label: "JD Input", icon: "📄", description: "Paste or upload a job description" },
-  { id: 2, label: "Analysis", icon: "🧠", description: "AI parses and structures the JD" },
-  { id: 3, label: "Discovery", icon: "🔍", description: "Find & score matching candidates" },
-  { id: 4, label: "Outreach", icon: "💬", description: "Simulate candidate conversations" },
-  { id: 5, label: "Dashboard", icon: "📊", description: "View ranked shortlist" },
+  { id: 1, label: "JD Input" },
+  { id: 2, label: "Analysis" },
+  { id: 3, label: "Discovery" },
+  { id: 4, label: "Outreach" },
+  { id: 5, label: "Dashboard" },
 ];
 
 export default function PipelineHeader({ currentStage = 1, onStageClick }) {
   return (
-    <header className={styles.header}>
-      <div className={styles.brand}>
-        <Image src="/logo.svg" alt="yntern logo" width={28} height={28} className={styles.logoImage} />
-        <h1 className={styles.title}>yntern</h1>
-      </div>
+    <div className={styles.wrapper}>
       <nav className={styles.pipeline} aria-label="Pipeline stages">
         {STAGES.map((stage, i) => {
           const isActive = stage.id === currentStage;
@@ -40,11 +33,14 @@ export default function PipelineHeader({ currentStage = 1, onStageClick }) {
                 className={`${styles.stage} ${isActive ? styles.active : ""} ${isComplete ? styles.complete : ""} ${isUpcoming ? styles.upcoming : ""}`}
                 onClick={() => isComplete && onStageClick?.(stage.id)}
                 disabled={isUpcoming}
-                title={stage.description}
                 aria-current={isActive ? "step" : undefined}
               >
-                <span className={styles.stageIcon}>
-                  {isComplete ? "✓" : stage.icon}
+                <span className={styles.bubble}>
+                  {isComplete ? (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  ) : (
+                    <span className={styles.bubbleNumber}>{stage.id}</span>
+                  )}
                 </span>
                 <span className={styles.stageLabel}>{stage.label}</span>
               </button>
@@ -52,7 +48,6 @@ export default function PipelineHeader({ currentStage = 1, onStageClick }) {
           );
         })}
       </nav>
-      <ThemeToggle />
-    </header>
+    </div>
   );
 }

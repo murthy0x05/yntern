@@ -1,42 +1,19 @@
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg-glass);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border-bottom: 1px solid var(--border);
-  padding: var(--space-md) var(--space-xl);
+.wrapper {
+  padding: var(--space-md) var(--page-padding);
   display: flex;
-  align-items: center;
-  gap: var(--space-xl);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex-shrink: 0;
-}
-
-.logoImage {
-  /* Let the SVG define its own rounded corners */
-}
-
-.title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-  text-transform: lowercase;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .pipeline {
   display: flex;
   align-items: center;
   gap: 0;
-  flex: 1;
-  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: var(--space-xs) var(--space-md);
 }
 
 .stageWrapper {
@@ -45,63 +22,73 @@
 }
 
 .connector {
-  width: 40px;
+  width: 28px;
   height: 2px;
   background: var(--border);
   transition: background var(--duration-slow) var(--ease-out);
 }
 
 .connectorComplete {
-  background: var(--accent);
+  background: var(--success);
 }
 
 .stage {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: var(--space-sm) var(--space-md);
+  gap: 6px;
+  padding: 6px 12px;
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   transition: all var(--duration-normal) var(--ease-out);
-  position: relative;
+  font-family: var(--font-sans);
 }
 
 .stage:disabled {
   cursor: default;
-  opacity: 0.4;
 }
 
-.stageIcon {
-  font-size: 1.25rem;
-  width: 40px;
-  height: 40px;
+.bubble {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-full);
+  border-radius: 50%;
   border: 2px solid var(--border);
   background: var(--bg-secondary);
   transition: all var(--duration-normal) var(--ease-out);
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+
+.bubbleNumber {
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-muted);
 }
 
 .stageLabel {
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   transition: color var(--duration-normal);
-  font-family: var(--font-sans);
+  white-space: nowrap;
 }
 
 /* Active state */
-.active .stageIcon {
+.active .bubble {
   border-color: var(--accent);
   background: var(--accent-glow);
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+.active .bubbleNumber {
+  color: var(--accent-light);
 }
 
 .active .stageLabel {
@@ -109,12 +96,10 @@
 }
 
 /* Complete state */
-.complete .stageIcon {
+.complete .bubble {
   border-color: var(--success);
   background: var(--success-bg);
   color: var(--success);
-  font-size: 1rem;
-  font-weight: 700;
 }
 
 .complete .stageLabel {
@@ -126,18 +111,21 @@
 }
 
 /* Upcoming state */
-.upcoming .stageIcon {
-  opacity: 0.4;
+.upcoming .bubble {
+  opacity: 0.35;
+}
+
+.upcoming .stageLabel {
+  opacity: 0.35;
 }
 
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    gap: var(--space-md);
+  .pipeline {
+    padding: var(--space-xs);
   }
 
   .connector {
-    width: 20px;
+    width: 12px;
   }
 
   .stageLabel {
@@ -145,6 +133,6 @@
   }
 
   .stage {
-    padding: var(--space-xs);
+    padding: 4px 6px;
   }
 }

@@ -1,111 +1,133 @@
 "use client";
 
 /**
- * JDInput — Job Description input with demo mode button.
- * Step 1 of the pipeline.
+ * JDInput — Job Description input with simplified hero, tips, and example JD.
  */
 import { useState } from "react";
 import styles from "./JDInput.module.css";
-import { DEMO_JD } from "@/lib/demoData";
+
+const EXAMPLE_JD = `Senior Full-Stack Engineer — FinTech Startup (Series B)
+
+About Us
+We are a fast-growing FinTech company building the next generation of digital banking infrastructure. Backed by top-tier VCs, we serve 2M+ users and process $500M+ in monthly transactions.
+
+Role Overview
+We're looking for a Senior Full-Stack Engineer to lead development of customer-facing products across our web and mobile platforms. You'll work closely with product, design, and data teams to ship features that directly impact revenue.
+
+Key Responsibilities
+• Architect and build scalable web applications using React/Next.js and Node.js
+• Design and implement RESTful APIs and GraphQL endpoints
+• Lead code reviews, mentor junior engineers, and establish engineering best practices
+• Collaborate with product managers to translate requirements into technical solutions
+• Optimize application performance, security, and reliability
+• Contribute to system design decisions and technical roadmap
+
+Requirements
+• 5+ years of professional software engineering experience
+• Strong proficiency in TypeScript, React, and Node.js
+• Experience with PostgreSQL, Redis, and cloud platforms (AWS or GCP)
+• Familiarity with CI/CD pipelines, Docker, and microservices architecture
+• Track record of shipping production-grade applications at scale
+• Excellent communication and collaboration skills
+
+Nice to Have
+• Experience in FinTech, payments, or banking domains
+• Knowledge of Kubernetes and infrastructure-as-code (Terraform)
+• Contributions to open-source projects
+• Experience with real-time systems (WebSockets, event-driven architecture)
+
+Compensation
+• $160K–$200K base + equity
+• Remote-first with optional NYC/SF office
+• Comprehensive benefits, 401k match, unlimited PTO`;
 
 export default function JDInput({ onSubmit, isLoading }) {
-  const [jdText, setJdText] = useState("");
+  const [text, setText] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (jdText.trim().length >= 20) {
-      onSubmit(jdText, false);
+  const handleSubmit = () => {
+    if (text.trim().length >= 20) {
+      onSubmit(text, false);
     }
   };
 
   const handleDemo = () => {
-    setJdText(DEMO_JD);
-    onSubmit(DEMO_JD, true);
+    onSubmit(EXAMPLE_JD, true);
+  };
+
+  const handleLoadExample = () => {
+    setText(EXAMPLE_JD);
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.hero}>
-        <div className={styles.badge}>
-          <span className={styles.badgeDot} />
-          AI-Powered Talent Intelligence
-        </div>
-        <h2 className={styles.heading}>
-          Paste a Job Description.
-          <br />
-          <span className={styles.gradient}>Let AI find your perfect candidates.</span>
-        </h2>
+        <h1 className={styles.heading}>
+          Welcome, Recruiter.
+        </h1>
         <p className={styles.subtitle}>
-          Our AI agent parses your JD, discovers matching candidates, simulates outreach
-          conversations, and delivers a ranked shortlist — scored on both match quality
-          and genuine interest.
+          Paste a Job Description below and let our AI find, score, and engage your ideal candidates.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.textareaWrapper}>
-          <textarea
-            id="jd-input"
-            className={styles.textarea}
-            value={jdText}
-            onChange={(e) => setJdText(e.target.value)}
-            placeholder="Paste a full job description here... (minimum 20 characters)"
-            rows={12}
-            disabled={isLoading}
-            aria-label="Job Description"
-          />
-          <div className={styles.textareaFooter}>
-            <span className={styles.charCount}>
-              {jdText.length} characters
-              {jdText.length > 0 && jdText.length < 20 && (
-                <span className={styles.warning}> — need at least 20</span>
-              )}
-            </span>
-          </div>
+      <div className={styles.inputArea}>
+        <textarea
+          className={styles.textarea}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Paste your full job description here... (minimum 20 characters)"
+          rows={10}
+          disabled={isLoading}
+        />
+        <div className={styles.charCount}>
+          {text.length} characters
         </div>
+      </div>
 
-        <div className={styles.actions}>
-          <button
-            type="submit"
-            className={`btn btn-primary btn-lg ${styles.submitBtn}`}
-            disabled={isLoading || jdText.trim().length < 20}
-          >
-            {isLoading ? (
-              <>
-                <span className={styles.spinner} />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                🚀 Analyze & Scout
-              </>
-            )}
-          </button>
+      <div className={styles.actions}>
+        <button
+          className="btn btn-primary btn-lg"
+          onClick={handleSubmit}
+          disabled={isLoading || text.trim().length < 20}
+        >
+          Analyze & Scout
+        </button>
+        <button
+          className="btn btn-secondary btn-lg"
+          onClick={handleDemo}
+          disabled={isLoading}
+        >
+          Quick Demo
+        </button>
+      </div>
 
-          <button
-            type="button"
-            className={`btn btn-secondary ${styles.demoBtn}`}
-            onClick={handleDemo}
-            disabled={isLoading}
-          >
-            ⚡ Try Demo
-          </button>
+      {/* Tips & Example */}
+      <div className={styles.tipsSection}>
+        <div className={styles.tipsCard}>
+          <h3 className={styles.tipsTitle}>Tips for a great Job Description</h3>
+          <ul className={styles.tipsList}>
+            <li>Be specific about required skills, frameworks, and tools</li>
+            <li>Include years of experience and seniority level</li>
+            <li>Mention the team size, reporting structure, and work culture</li>
+            <li>Add compensation range and benefits to attract top talent</li>
+            <li>Describe key responsibilities and expected impact</li>
+            <li>Specify location preference (remote, hybrid, on-site)</li>
+          </ul>
         </div>
-      </form>
-
-      <div className={styles.features}>
-        {[
-          { icon: "🧠", title: "Smart JD Parsing", desc: "Extracts skills, requirements, and culture signals" },
-          { icon: "🔍", title: "AI Candidate Discovery", desc: "Finds and matches candidates with explainable scoring" },
-          { icon: "💬", title: "Simulated Outreach", desc: "AI conversations to gauge genuine candidate interest" },
-          { icon: "📊", title: "Ranked Shortlist", desc: "Dual-scored candidates: Match + Interest" },
-        ].map((f) => (
-          <div key={f.title} className={styles.feature}>
-            <span className={styles.featureIcon}>{f.icon}</span>
-            <h4 className={styles.featureTitle}>{f.title}</h4>
-            <p className={styles.featureDesc}>{f.desc}</p>
+        <div className={styles.exampleCard}>
+          <div className={styles.exampleHeader}>
+            <h3 className={styles.tipsTitle}>Example JD</h3>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={handleLoadExample}
+              disabled={isLoading}
+            >
+              Load this example
+            </button>
           </div>
-        ))}
+          <pre className={styles.exampleText}>
+            {EXAMPLE_JD.slice(0, 400)}...
+          </pre>
+        </div>
       </div>
     </div>
   );

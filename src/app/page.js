@@ -6,13 +6,16 @@
  */
 import { useState, useCallback } from "react";
 import styles from "./page.module.css";
+import Navbar from "@/components/Navbar";
 import PipelineHeader from "@/components/PipelineHeader";
 import JDInput from "@/components/JDInput";
 import JDAnalysis from "@/components/JDAnalysis";
 import CandidateCard from "@/components/CandidateCard";
 import ChatReplay from "@/components/ChatReplay";
 import RankedDashboard from "@/components/RankedDashboard";
-import ScoreGauge from "@/components/ScoreGauge";
+import AgentThinking from "@/components/AgentThinking";
+import AssessmentModal from "@/components/AssessmentModal";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   // Pipeline state
@@ -20,6 +23,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [thinkingStage, setThinkingStage] = useState("parse-jd");
 
   // Data state
   const [jdText, setJdText] = useState("");
@@ -31,13 +35,15 @@ export default function Home() {
   // UI state
   const [activeOutreach, setActiveOutreach] = useState(null);
   const [outreachCandidate, setOutreachCandidate] = useState(null);
+  const [assessCandidate, setAssessCandidate] = useState(null);
 
   // ── Step 1: Parse JD ──
   const handleJDSubmit = useCallback(async (text, useDemo) => {
     setJdText(text);
     setIsDemo(useDemo);
     setIsLoading(true);
-    setLoadingMessage("🧠 Parsing job description...");
+    setThinkingStage("parse-jd");
+    setLoadingMessage("Parsing job description...");
 
     try {
       const res = await fetch("/api/parse-jd", {
@@ -62,10 +68,10 @@ export default function Home() {
   // ── Step 2→3: Discover & Score Candidates ──
   const handleDiscover = useCallback(async () => {
     setIsLoading(true);
-    setLoadingMessage("🔍 Discovering matching candidates...");
+    setThinkingStage("discover");
+    setLoadingMessage("Discovering matching candidates...");
 
     try {
-      // Generate candidates
       const candRes = await fetch("/api/generate-candidates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,8 +82,7 @@ export default function Home() {
       if (candData.success) {
         const rawCandidates = candData.data;
 
-        // Score candidates
-        setLoadingMessage("⚡ Scoring and ranking candidates...");
+        setLoadingMessage("Scoring and ranking candidates...");
         const scoreRes = await fetch("/api/score-candidates", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -93,7 +98,6 @@ export default function Home() {
           const scoreArray = scoreData.data;
           setScores(scoreArray);
 
-          // Merge candidates with scores and sort
           const merged = rawCandidates
             .map((c) => ({
               ...c,
@@ -118,14 +122,13 @@ export default function Home() {
     async (candidate) => {
       setOutreachCandidate(candidate);
 
-      // Check if we already have outreach data for this candidate
       if (outreachData[candidate.id]) {
         setActiveOutreach(outreachData[candidate.id]);
         return;
       }
 
-      // Simulate outreach
-      setLoadingMessage(`💬 Simulating outreach with ${candidate.name}...`);
+      setThinkingStage("outreach");
+      setLoadingMessage(`Simulating outreach with ${candidate.name}...`);
       setIsLoading(true);
 
       try {
@@ -145,7 +148,6 @@ export default function Home() {
           setOutreachData((prev) => ({ ...prev, [candidate.id]: data.data }));
           setActiveOutreach(data.data);
 
-          // Update the candidate with outreach data
           setCandidates((prev) =>
             prev.map((c) =>
               c.id === candidate.id
@@ -176,33 +178,26 @@ export default function Home() {
     setOutreachCandidate(null);
   }, []);
 
-  // ── Navigate to Dashboard ──
   const handleGoToDashboard = useCallback(() => {
     setStage(5);
   }, []);
 
-  // ── Stage navigation ──
   const handleStageClick = useCallback((s) => {
     setStage(s);
   }, []);
 
   return (
     <div className={styles.app}>
+      <Navbar />
       <PipelineHeader currentStage={stage} onStageClick={handleStageClick} />
 
-      {/* Loading overlay */}
+      {/* Agent Thinking overlay */}
       {isLoading && (
-        <div className={styles.loadingOverlay}>
-          <div className={styles.loadingCard}>
-            <div className={styles.loadingSpinner} />
-            <p className={styles.loadingText}>{loadingMessage}</p>
-            {isDemo && (
-              <span className="badge badge-warning" style={{ marginTop: 8 }}>
-                Using Demo Data
-              </span>
-            )}
-          </div>
-        </div>
+        <AgentThinking
+          stage={thinkingStage}
+          message={loadingMessage}
+          isDemo={isDemo}
+        />
       )}
 
       <main className={styles.main}>
@@ -222,7 +217,7 @@ export default function Home() {
 
         {/* Stage 3: Discovery & Matching */}
         {stage === 3 && (
-          <div className={styles.discoverySection}>
+          <div className={styles.pageContent}>
             <div className={styles.discoveryHeader}>
               <div>
                 <h2>Candidate Discovery & Matching</h2>
@@ -232,7 +227,8 @@ export default function Home() {
                 </p>
               </div>
               <button className="btn btn-primary" onClick={handleGoToDashboard}>
-                📊 View Dashboard →
+                View Dashboard
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
 
@@ -252,9 +248,9 @@ export default function Home() {
 
         {/* Stage 5: Dashboard */}
         {stage === 5 && (
-          <div>
+          <div className={styles.pageContent}>
             <div className={styles.dashboardHeader}>
-              <h2>📊 Ranked Shortlist</h2>
+              <h2>Ranked Shortlist</h2>
               <p className={styles.discoverySubtitle}>
                 Final ranked candidates scored on Match (60%) + Interest (40%).
                 Simulate outreach for candidates without interest scores.
@@ -270,6 +266,7 @@ export default function Home() {
                   handleSimulateOutreach(c);
                 }
               }}
+              onSendAssessment={(c) => setAssessCandidate(c)}
             />
           </div>
         )}
@@ -281,6 +278,17 @@ export default function Home() {
           outreach={activeOutreach}
           candidate={outreachCandidate}
           onClose={handleCloseOutreach}
+        />
+      )}
+
+      <Footer />
+
+      {/* Assessment Modal */}
+      {assessCandidate && (
+        <AssessmentModal
+          candidate={assessCandidate}
+          parsedJD={parsedJD}
+          onClose={() => setAssessCandidate(null)}
         />
       )}
     </div>

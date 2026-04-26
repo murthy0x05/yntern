@@ -1,0 +1,88 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s var(--ease-out);
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  width: 100%;
+  max-width: 520px;
+  box-shadow: var(--shadow-glow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin: var(--space-md);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast);
+}
+
+.closeBtn:hover {
+  color: var(--text-primary);
+}
+
+.description {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.description strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.linkBox {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.linkInput {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.linkInput:focus {
+  border-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+}
