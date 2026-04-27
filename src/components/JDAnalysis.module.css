@@ -90,7 +90,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  animation: slideIn 0.4s var(--ease-out) both;
+  animation: slideIn 0.4s var(--ease-out);
 }
 
 .skillName {

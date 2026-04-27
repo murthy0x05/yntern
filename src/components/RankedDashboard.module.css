@@ -107,7 +107,7 @@
 .thActions { width: 100px; }
 
 .row {
-  animation: fadeIn 0.4s var(--ease-out) both;
+  animation: fadeIn 0.4s var(--ease-out);
   transition: background var(--duration-fast);
 }
 

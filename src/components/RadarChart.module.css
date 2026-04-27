@@ -11,12 +11,12 @@
 }
 
 .dataPath {
-  animation: fadeIn 0.8s var(--ease-out) both;
+  animation: fadeIn 0.8s var(--ease-out);
   animation-delay: 0.3s;
 }
 
 .dataPoint {
-  animation: fadeIn 0.4s var(--ease-out) both;
+  animation: fadeIn 0.4s var(--ease-out);
 }
 
 .dataPoint:nth-child(1) { animation-delay: 0.4s; }
