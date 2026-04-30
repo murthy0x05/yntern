@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aethera® - Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        @keyframes fade-rise {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-rise {
+            animation: fade-rise 0.8s ease-out forwards;
+        }
+        .animate-fade-rise-delay {
+            animation: fade-rise 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+        .animate-fade-rise-delay-2 {
+            animation: fade-rise 0.8s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-white text-[#000000] antialiased min-h-screen relative overflow-hidden flex flex-col justify-between">
+<!-- Video Background -->
+<div class="absolute" style="top: 100px; inset: auto 0 0 0; z-index: -1;">
+<video autoplay="" class="w-full h-full object-cover" id="bg-video" loop="" muted="" playsinline="" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4"></video>
+</div>
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-12 py-6 max-w-[1440px] mx-auto bg-white/70 backdrop-blur-[20px] border-b-[0.5px] border-gray-200 opacity-0 animate-[fade-rise_0.8s_ease-out_forwards]">
+<div class="text-3xl tracking-tighter text-[#000000] font-['Instrument_Serif'] italic">Yntern<sup class="text-lg">®</sup></div>
+<div class="hidden md:flex items-center space-x-8 text-base font-medium tracking-tight">
+<a class="text-[#000000] font-semibold transition-all duration-300 ease-out font-['Inter']" href="#">Home</a>
+<a class="text-[#6F6F6F] hover:text-[#000000] transition-all duration-300 ease-out font-['Inter']" href="#">Studio</a>
+<a class="text-[#6F6F6F] hover:text-[#000000] transition-all duration-300 ease-out font-['Inter']" href="#">About</a>
+<a class="text-[#6F6F6F] hover:text-[#000000] transition-all duration-300 ease-out font-['Inter']" href="#">Journal</a>
+<a class="text-[#6F6F6F] hover:text-[#000000] transition-all duration-300 ease-out font-['Inter']" href="#">Reach Us</a>
+</div>
+<div class="hidden md:flex items-center space-x-4">
+<a class="text-[#000000] font-medium font-['Inter'] hover:text-[#6F6F6F] transition-colors" href="#">Login</a>
+<button class="bg-[#000000] text-white rounded-full px-6 py-2.5 text-base transition-transform duration-300 hover:scale-[1.03] font-['Inter']">
+        Sign up
+    </button>
+</div>
+</nav>
+<!-- Hero Content -->
+<main class="relative z-10 flex flex-col items-center text-center pt-[calc(8rem-75px)] px-6 max-w-[1440px] mx-auto min-h-screen">
+<h1 class="text-[#000000] max-w-none whitespace-nowrap animate-fade-rise mt-32" style="font-family: 'Instrument Serif'; font-size: 80px; line-height: 0.95; letter-spacing: -2.46px;">
+            Find the <span class="text-[#6F6F6F]">talent</span> that shapes <span class="text-[#6F6F6F]">tomorrow.</span>
+</h1>
+<p class="text-lg text-[#6F6F6F] max-w-2xl mt-8 animate-fade-rise-delay font-['Inter']">Our advanced platform helps recruiters find the best candidates. <br/> Effortlessly streamline your hiring process to build great teams.</p>
+<button class="bg-[#000000] text-white rounded-full px-14 py-5 text-lg mt-12 transition-transform duration-300 hover:scale-[1.03] animate-fade-rise-delay-2 font-['Inter']">
+            Begin Journey
+        </button>
+</main>
+<footer class="w-full py-20 bg-white dark:bg-black border-t border-black/[0.05] dark:border-white/[0.05]"> <div class="flex flex-col md:flex-row justify-between items-center max-w-[1440px] mx-auto px-8 gap-8 transition-all duration-500 ease-out"> <a class="font-['Instrument_Serif'] text-xl text-black dark:text-white" href="/">Yntern<sup>®</sup></a> <p class="font-['Inter'] text-[12px] uppercase tracking-widest text-gray-400 dark:text-gray-600 order-3 md:order-2"> © 2024 Yntern Studio. All rights reserved. </p> <div class="flex items-center gap-6 font-['Inter'] text-[12px] uppercase tracking-widest order-2 md:order-3"> <a class="text-gray-400 dark:text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-300" href="#">Privacy</a> <a class="text-gray-400 dark:text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-300" href="#">Terms</a> <a class="text-gray-400 dark:text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-300" href="#">Twitter</a> <a class="text-gray-400 dark:text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-300" href="#">LinkedIn</a> </div> </div> </footer>
+</body></html>
