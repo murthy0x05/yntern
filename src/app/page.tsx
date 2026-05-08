@@ -61,11 +61,12 @@ export default function LandingPage() {
       {/* Hero Content */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-start text-center px-6 w-full">
         {/* Video Background */}
-        <div 
+        <div
           className="absolute inset-x-0 bottom-0 top-[6vh] -z-10"
-          style={{ 
-            maskImage: 'linear-gradient(to bottom, transparent, black 15%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%)'
+          style={{
+            maskImage: "linear-gradient(to bottom, transparent, black 15%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent, black 15%)",
           }}
         >
           <video

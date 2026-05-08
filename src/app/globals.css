@@ -37,19 +37,38 @@
   --color-inverse-on-surface: #f1f1f1;
   --color-inverse-primary: #c6c6c6;
 
-  --font-instrument: 'Instrument Serif', serif;
-  --font-inter: 'Inter', sans-serif;
+  /* shadcn-compatible tokens for agent-plan component */
+  --color-card: #ffffff;
+  --color-border: #cfc4c5;
+  --color-muted: #e2e2e2;
+  --color-muted-foreground: #848484;
+  --color-secondary-foreground: #1b1b1b;
+
+  --font-instrument: "Instrument Serif", serif;
+  --font-inter: "Inter", sans-serif;
 }
 
 /* Animations */
 @keyframes fade-rise {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-rise {
@@ -93,7 +112,7 @@
 
 /* Material Symbols */
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: "Material Symbols Outlined";
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -104,9 +123,13 @@
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  -webkit-font-feature-settings: 'liga';
+  -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 300,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 /* Custom select for minimalist border-bottom */

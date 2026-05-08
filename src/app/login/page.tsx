@@ -1,14 +1,84 @@
-import Link from "next/link";
+"use client";
 
-export const metadata = {
-  title: "Yntern® — Login",
-  description: "Sign in to your Yntern account to access the talent platform.",
-};
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data.user) {
+      // Check if user is a recruiter or candidate
+      const { data: recruiter } = await supabase
+        .from("recruiters")
+        .select("id")
+        .eq("auth_user_id", data.user.id)
+        .single();
+
+      if (recruiter) {
+        router.push("/recruiter");
+      } else {
+        router.push("/candidate");
+      }
+    }
+  };
+
+  const handleOAuth = async (provider: "google" | "github") => {
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
   return (
     <div className="bg-[#f9f9f9] text-[#1b1b1b] h-screen overflow-hidden flex font-[Inter] antialiased">
-      {/* Left side: Video Panel (Sarvam-style framed) */}
+      {/* Floating Error Bar */}
+      {error && (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 bg-red-50 border border-red-200 text-red-600 pl-5 pr-3 py-2.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] text-sm font-[Inter] flex items-center gap-3 animate-in slide-in-from-top-4 fade-in duration-300">
+          <span className="material-symbols-outlined text-[18px]">error</span>
+          <span className="mr-2">{error}</span>
+          <button 
+            onClick={() => setError("")}
+            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-100 transition-colors cursor-pointer text-red-500"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+      )}
+
+      {/* Left side: Video Panel */}
       <div className="hidden lg:block lg:w-[50%] p-3 pr-0">
         <div className="relative w-full h-full rounded-2xl overflow-hidden">
           <video
@@ -27,7 +97,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right side: Login Form */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6">
+      <div className="flex-1 flex flex-col justify-center items-center px-6 relative">
         <div className="w-full max-w-[380px]">
           {/* Logo */}
           <div className="mb-10">
@@ -49,7 +119,10 @@ export default function LoginPage() {
           >
             Welcome Back
           </h1>
-          <form className="flex flex-col gap-7">
+
+
+
+          <form className="flex flex-col gap-7" onSubmit={handleLogin}>
             {/* Email Input */}
             <div className="flex flex-col gap-3">
               <label className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase">
@@ -60,6 +133,8 @@ export default function LoginPage() {
                 placeholder="user@yntern.com"
                 required
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             {/* Password Input */}
@@ -68,29 +143,30 @@ export default function LoginPage() {
                 <label className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase">
                   Password
                 </label>
-                <a
-                  className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] hover:text-[#1b1b1b] transition-colors"
+                <Link
                   href="#"
+                  className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] hover:text-[#1b1b1b] transition-colors"
                 >
                   Forgot?
-                </a>
+                </Link>
               </div>
               <input
                 className="w-full bg-transparent border-0 border-b border-[#cfc4c5] px-0 py-1.5 font-[Inter] text-sm text-[#1b1b1b] placeholder:text-[#7e7576] focus:ring-0 focus:border-black transition-colors outline-none"
                 placeholder="••••••••"
                 required
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             {/* Submit Button */}
-            <Link href="/dashboard">
-              <button
-                className="w-full bg-black text-white rounded-full py-3 mt-2 font-[Inter] text-sm flex items-center justify-center hover:opacity-80 transition-opacity duration-300 cursor-pointer"
-                type="button"
-              >
-                Continue
-              </button>
-            </Link>
+            <button
+              className="w-full bg-black text-white rounded-full py-3 mt-2 font-[Inter] text-sm flex items-center justify-center hover:opacity-80 transition-opacity duration-300 cursor-pointer disabled:opacity-50"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Continue"}
+            </button>
           </form>
 
           {/* Divider */}
@@ -107,6 +183,7 @@ export default function LoginPage() {
             <button
               className="w-full border border-[#cfc4c5] rounded-full py-2.5 flex items-center justify-center gap-3 hover:bg-[#e2e2e2] transition-colors duration-300 font-[Inter] text-sm text-[#1b1b1b]"
               type="button"
+              onClick={() => handleOAuth("google")}
             >
               <svg
                 height="20"
@@ -136,6 +213,7 @@ export default function LoginPage() {
             <button
               className="w-full border border-[#cfc4c5] rounded-full py-2.5 flex items-center justify-center gap-3 hover:bg-[#e2e2e2] transition-colors duration-300 font-[Inter] text-sm text-[#1b1b1b]"
               type="button"
+              onClick={() => handleOAuth("github")}
             >
               <svg
                 fill="currentColor"
