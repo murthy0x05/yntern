@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { auth, db } from "@/utils/firebase/client";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
 import { CountrySelect } from "./country-select";
 
 export default function CandidateRegisterPage() {
@@ -15,7 +17,6 @@ export default function CandidateRegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     if (error) {
@@ -29,44 +30,34 @@ export default function CandidateRegisterPage() {
     setLoading(true);
     setError("");
 
-    // 1. Sign up user
-    const { data, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      // 1. Sign up user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (data.user) {
       // 2. Create candidate profile
-      const { error: dbError } = await supabase.from("candidates").insert({
-        auth_user_id: data.user.id,
+      await addDoc(collection(db, "candidates"), {
+        auth_user_id: user.uid,
         name,
         title: profession,
         initials: name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase() || "CN",
       });
 
-      if (dbError) {
-        setError(dbError.message);
-        setLoading(false);
-        return;
-      }
-
       router.push("/candidate");
+    } catch (err: any) {
+      setError(err.message || "Failed to register");
+      setLoading(false);
     }
   };
 
-  const handleOAuth = async (provider: "google" | "github") => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+  const handleOAuth = async (providerName: "google" | "github") => {
+    try {
+      const provider = providerName === "google" ? new GoogleAuthProvider() : new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.push("/candidate");
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in with provider");
+    }
   };
 
   return (

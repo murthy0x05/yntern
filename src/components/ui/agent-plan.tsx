@@ -96,7 +96,7 @@ const createInitialTasks = (): Task[] => [
           "Run semantic similarity search across all uploaded resumes to surface candidates with relevant experience and skills",
         status: "pending",
         priority: "high",
-        tools: ["supabase", "vector-search"],
+        tools: ["firestore", "vector-search"],
       },
       {
         id: "2.2",
@@ -105,7 +105,7 @@ const createInitialTasks = (): Task[] => [
           "Apply structured filters on extracted skill tags, years of experience, and education level from candidate profiles",
         status: "pending",
         priority: "high",
-        tools: ["supabase", "skills-taxonomy"],
+        tools: ["firestore", "skills-taxonomy"],
       },
       {
         id: "2.3",
@@ -114,7 +114,7 @@ const createInitialTasks = (): Task[] => [
           "Review candidate engagement data — profile completeness, last active date, and AI assessment scores on the platform",
         status: "pending",
         priority: "medium",
-        tools: ["supabase", "analytics-engine"],
+        tools: ["firestore", "analytics-engine"],
       },
       {
         id: "2.4",
@@ -123,7 +123,7 @@ const createInitialTasks = (): Task[] => [
           "Filter out candidates who have marked themselves as unavailable or are currently in an active hiring pipeline",
         status: "pending",
         priority: "medium",
-        tools: ["supabase"],
+        tools: ["firestore"],
       },
     ],
   },

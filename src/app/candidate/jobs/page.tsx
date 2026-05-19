@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { db } from "@/utils/firebase/client";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 const FILTERS = ["All", "Remote", "Full-time", "Contract", "On-site"];
 
@@ -35,17 +36,25 @@ function ScoreBar({
 export default function JobFeedPage() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [savedJobs, setSavedJobs] = useState<number[]>([]);
+  const [savedJobs, setSavedJobs] = useState<any[]>([]); // changed from number[] to any[] since Firestore IDs are strings
   const [jobs, setJobs] = useState<any[]>([]);
-  const supabase = createClient();
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data } = await supabase.from("jobs").select("*").order("id");
-      if (data) setJobs(data);
+      try {
+        const q = query(collection(db, "jobs"), orderBy("id"));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({
+          docId: doc.id, // Keeping doc.id separate just in case
+          ...doc.data()
+        }));
+        setJobs(data);
+      } catch (err) {
+        console.error("Failed to fetch jobs:", err);
+      }
     };
     fetchJobs();
-  }, [supabase]);
+  }, []);
 
   const filtered = jobs.filter((j) => {
     const searchLower = search.toLowerCase();
@@ -60,7 +69,7 @@ export default function JobFeedPage() {
     return matchesSearch && matchesFilter;
   });
 
-  const toggleSave = (id: number) => {
+  const toggleSave = (id: any) => {
     setSavedJobs((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );

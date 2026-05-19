@@ -30,7 +30,8 @@ const TEMPLATES = [
   },
 ];
 
-import { createClient } from "@/utils/supabase/client";
+import { db } from "@/utils/firebase/client";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 
 type Candidate = {
   name: string;
@@ -58,23 +59,23 @@ export default function HirePage() {
 
   useEffect(() => {
     async function fetchCandidates() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("candidates")
-        .select("*")
-        .order("match_score", { ascending: false })
-        .limit(6);
-
-      if (data) {
-        const mapped = data.map((c) => ({
-          name: c.name,
-          role: c.title,
-          matchScore: c.match_score,
-          skills: c.skills,
-          experience: c.experience,
-          avatar: c.initials,
-        }));
+      try {
+        const q = query(collection(db, "candidates"), orderBy("match_score", "desc"), limit(6));
+        const querySnapshot = await getDocs(q);
+        const mapped = querySnapshot.docs.map((doc) => {
+          const c = doc.data();
+          return {
+            name: c.name,
+            role: c.title,
+            matchScore: c.match_score,
+            skills: c.skills,
+            experience: c.experience,
+            avatar: c.initials,
+          };
+        });
         setMatchedCandidates(mapped);
+      } catch (err) {
+        console.error("Failed to fetch candidates:", err);
       }
     }
     fetchCandidates();

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
+import { db } from "@/utils/firebase/client";
+import { collection, getDocs } from "firebase/firestore";
 
 type Candidate = {
-  id: number;
+  id: any;
   name: string;
   title: string;
   company: string;
@@ -63,16 +64,20 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     async function fetchCandidates() {
-      const supabase = createClient();
-      const { data, error } = await supabase.from("candidates").select("*");
-      
-      if (data) {
-        const mapped = data.map((c) => ({
-          ...c,
-          matchScore: c.match_score,
-          interestScore: c.interest_score,
-        }));
+      try {
+        const querySnapshot = await getDocs(collection(db, "candidates"));
+        const mapped = querySnapshot.docs.map((doc) => {
+          const c = doc.data();
+          return {
+            ...c,
+            id: doc.id,
+            matchScore: c.match_score,
+            interestScore: c.interest_score,
+          } as Candidate;
+        });
         setCandidates(mapped);
+      } catch (err) {
+        console.error("Failed to fetch candidates:", err);
       }
       setLoading(false);
     }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { db } from "@/utils/firebase/client";
+import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
 const STAGES = ["Applied", "Screening", "Interview", "Offer", "Hired"];
 
@@ -41,17 +42,15 @@ function PipelineDots({ currentStage }: { currentStage: number }) {
 
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<any[]>([]);
-  const supabase = createClient();
 
   useEffect(() => {
     const fetchApplications = async () => {
-      const { data } = await supabase
-        .from("applications")
-        .select("*")
-        .order("created_at", { ascending: false });
+      try {
+        const q = query(collection(db, "applications"), orderBy("created_at", "desc"));
+        const querySnapshot = await getDocs(q);
 
-      if (data) {
-        const formatted = data.map((app) => {
+        const formatted = querySnapshot.docs.map((doc) => {
+          const app = doc.data();
           let currentStage = STAGES.indexOf(app.stage);
           if (app.status === "Withdrawn") currentStage = -1;
           if (app.status === "Declined") currentStage = -2;
@@ -73,6 +72,7 @@ export default function ApplicationsPage() {
 
           return {
             ...app,
+            id: doc.id,
             initials: app.company?.substring(0, 2).toUpperCase() || "??",
             applied: new Date(app.created_at).toLocaleDateString("en-US", {
               month: "short",
@@ -84,10 +84,12 @@ export default function ApplicationsPage() {
           };
         });
         setApplications(formatted);
+      } catch (err) {
+        console.error("Failed to fetch applications:", err);
       }
     };
     fetchApplications();
-  }, [supabase]);
+  }, []);
 
   const SUMMARY = [
     {

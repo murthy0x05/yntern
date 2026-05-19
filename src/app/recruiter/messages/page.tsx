@@ -1,72 +1,80 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
-
-
+import { db } from "@/utils/firebase/client";
+import { collection, getDocs, addDoc, query, orderBy } from "firebase/firestore";
 
 export default function MessagesPage() {
-  const [activeId, setActiveId] = useState(1);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [chats, setChats] = useState<any[]>([]);
-  const supabase = createClient();
 
   useEffect(() => {
     const fetchChats = async () => {
-      const { data } = await supabase
-        .from("chats")
-        .select("id, status, candidates(name), jobs(role), messages(sender, text, time, created_at)");
+      try {
+        const querySnapshot = await getDocs(collection(db, "chats"));
+        
+        const chatsData = await Promise.all(
+          querySnapshot.docs.map(async (chatDoc) => {
+            const chat = chatDoc.data();
+            const msgsSnap = await getDocs(query(collection(db, "chats", chatDoc.id, "messages"), orderBy("created_at")));
+            const msgs = msgsSnap.docs.map(m => m.data());
+            
+            const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+            const candidateName = chat.candidateName || "Unknown Candidate";
+            const initials = candidateName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
 
-      if (data) {
-        const formatted = data.map((chat: any) => {
-          const msgs = chat.messages ? chat.messages.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) : [];
-          const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-          const candidateName = chat.candidates?.name || "Unknown Candidate";
-          const initials = candidateName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-
-          return {
-            id: chat.id,
-            name: candidateName,
-            initials: initials,
-            role: chat.jobs?.role || "Unknown Role",
-            unread: chat.status === "Awaiting Review",
-            lastMessage: lastMsg ? lastMsg.text : "No messages",
-            time: lastMsg ? lastMsg.time : "",
-            messages: msgs,
-          };
-        });
-        setChats(formatted);
-        if (formatted.length > 0) {
-          setActiveId(formatted[0].id);
+            return {
+              id: chatDoc.id,
+              name: candidateName,
+              initials: initials,
+              role: chat.role || "Unknown Role",
+              unread: chat.status === "Awaiting Review",
+              lastMessage: lastMsg ? lastMsg.text : "No messages",
+              time: lastMsg ? lastMsg.time : "",
+              messages: msgs,
+            };
+          })
+        );
+        
+        setChats(chatsData);
+        if (chatsData.length > 0) {
+          setActiveId(chatsData[0].id);
         }
+      } catch (err) {
+        console.error("Failed to fetch chats:", err);
       }
     };
     fetchChats();
-  }, [supabase]);
+  }, []);
 
   const handleSendMessage = async () => {
-    if (!replyText.trim()) return;
+    if (!replyText.trim() || !activeId) return;
 
-    const { data, error } = await supabase.from("messages").insert({
-      chat_id: activeId,
-      sender: "ai",
-      text: replyText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }).select();
+    try {
+      const newMessage = {
+        sender: "ai",
+        text: replyText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        created_at: new Date().toISOString()
+      };
+      
+      await addDoc(collection(db, "chats", activeId, "messages"), newMessage);
 
-    if (!error && data) {
       setChats(prev => prev.map(c => {
         if (c.id === activeId) {
           return {
             ...c,
-            messages: [...c.messages, data[0]],
-            lastMessage: data[0].text,
-            time: data[0].time
+            messages: [...c.messages, newMessage],
+            lastMessage: newMessage.text,
+            time: newMessage.time
           };
         }
         return c;
       }));
       setReplyText("");
+    } catch (err) {
+      console.error("Failed to send message:", err);
     }
   };
 

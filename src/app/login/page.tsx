@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { auth, db } from "@/utils/firebase/client";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,7 +13,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     if (error) {
@@ -25,40 +26,34 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (data.user) {
       // Check if user is a recruiter or candidate
-      const { data: recruiter } = await supabase
-        .from("recruiters")
-        .select("id")
-        .eq("auth_user_id", data.user.id)
-        .single();
+      const recruitersRef = collection(db, "recruiters");
+      const q = query(recruitersRef, where("auth_user_id", "==", user.uid));
+      const querySnapshot = await getDocs(q);
 
-      if (recruiter) {
+      if (!querySnapshot.empty) {
         router.push("/recruiter");
       } else {
         router.push("/candidate");
       }
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in");
+      setLoading(false);
     }
   };
 
-  const handleOAuth = async (provider: "google" | "github") => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+  const handleOAuth = async (providerName: "google" | "github") => {
+    try {
+      const provider = providerName === "google" ? new GoogleAuthProvider() : new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.push("/candidate"); // Standard fallback, ideally checking role after oauth too
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in with provider");
+    }
   };
 
   return (
