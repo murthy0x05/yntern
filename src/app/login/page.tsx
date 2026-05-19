@@ -176,7 +176,7 @@ export default function LoginPage() {
           {/* Social Logins */}
           <div className="flex flex-col gap-4">
             <button
-              className="w-full border border-[#cfc4c5] rounded-full py-2.5 flex items-center justify-center gap-3 hover:bg-[#e2e2e2] transition-colors duration-300 font-[Inter] text-sm text-[#1b1b1b]"
+              className="w-full border border-[#cfc4c5] rounded-full py-2.5 flex items-center justify-center gap-3 hover:bg-[#e2e2e2] transition-colors duration-300 font-[Inter] text-sm text-[#1b1b1b] cursor-pointer"
               type="button"
               onClick={() => handleOAuth("google")}
             >
@@ -206,7 +206,7 @@ export default function LoginPage() {
               Google
             </button>
             <button
-              className="w-full border border-[#cfc4c5] rounded-full py-2.5 flex items-center justify-center gap-3 hover:bg-[#e2e2e2] transition-colors duration-300 font-[Inter] text-sm text-[#1b1b1b]"
+              className="w-full border border-[#cfc4c5] rounded-full py-2.5 flex items-center justify-center gap-3 hover:bg-[#e2e2e2] transition-colors duration-300 font-[Inter] text-sm text-[#1b1b1b] cursor-pointer"
               type="button"
               onClick={() => handleOAuth("github")}
             >
