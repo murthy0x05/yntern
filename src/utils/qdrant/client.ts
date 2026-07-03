@@ -37,49 +37,24 @@ export async function ensureCollection(): Promise<void> {
  * Builds the embedding text string from a candidate's profile fields.
  * This text is what gets embedded into the vector space.
  */
-export function buildEmbeddingText(profile: {
-  name: string;
-  title: string;
-  skills?: string[];
-  bio?: string;
-  experience_level?: string;
-  work_preference?: string;
-  country?: string;
-  company?: string;
-  education?: string;
-}): string {
-  const parts: string[] = [];
-
-  parts.push(profile.name);
-  parts.push(profile.title);
-
-  if (profile.skills && profile.skills.length > 0) {
+export function buildEmbeddingText(profile: any): string {
+  const parts = [];
+  if (profile.name) parts.push(profile.name);
+  if (profile.title) parts.push(profile.title);
+  if (profile.skills && profile.skills.length > 0)
     parts.push(`Skills: ${profile.skills.join(", ")}`);
-  }
-
-  if (profile.experience_level) {
+  if (profile.languages && profile.languages.length > 0)
+    parts.push(`Languages: ${profile.languages.join(", ")}`);
+  if (profile.experience_level)
     parts.push(`${profile.experience_level} experience`);
-  }
-
-  if (profile.work_preference) {
-    parts.push(profile.work_preference);
-  }
-
-  if (profile.country) {
-    parts.push(profile.country);
-  }
-
-  if (profile.company) {
-    parts.push(`at ${profile.company}`);
-  }
-
-  if (profile.education) {
-    parts.push(profile.education);
-  }
-
-  if (profile.bio) {
-    parts.push(profile.bio);
-  }
-
+  if (profile.work_preference) parts.push(profile.work_preference);
+  if (profile.employment_type && profile.employment_type.length > 0)
+    parts.push(`Looking for: ${profile.employment_type.join(", ")}`);
+  if (profile.availability) parts.push(`Available: ${profile.availability}`);
+  if (profile.relocation === "Yes") parts.push("Willing to relocate");
+  if (profile.country) parts.push(profile.country);
+  if (profile.company) parts.push(`at ${profile.company}`);
+  if (profile.education) parts.push(profile.education);
+  if (profile.bio) parts.push(profile.bio);
   return parts.join(" | ");
 }

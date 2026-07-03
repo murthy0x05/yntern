@@ -18,6 +18,8 @@ const EXPERIENCE_LEVELS = [
 ];
 
 const WORK_PREFERENCES = ["Remote", "On-site", "Hybrid", "Open to all"];
+const EMPLOYMENT_TYPES = ["Full-time", "Part-time", "Contract", "Internship"];
+const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In 1 month", "Open to offers"];
 
 export default function CandidateRegisterPage() {
   // Step 1 fields
@@ -35,6 +37,14 @@ export default function CandidateRegisterPage() {
   const [country, setCountry] = useState("");
   const [company, setCompany] = useState("");
   const [education, setEducation] = useState("");
+
+  // Step 3 fields
+  const [linkedin, setLinkedin] = useState("");
+  const [github, setGithub] = useState("");
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [employmentType, setEmploymentType] = useState<string[]>([]);
+  const [availability, setAvailability] = useState("");
+  const [relocation, setRelocation] = useState("No");
 
   // UI state
   const [step, setStep] = useState(1);
@@ -59,13 +69,24 @@ export default function CandidateRegisterPage() {
     setStep(2);
   };
 
-  const handleStep2Submit = async (e: React.FormEvent) => {
+  const handleStep2Continue = (e: React.FormEvent) => {
     e.preventDefault();
     if (!profession || skills.length === 0 || !experienceLevel || !workPreference || !country) {
       setError("Please fill in all required fields and add at least one skill");
       return;
     }
+    setStep(3);
+  };
 
+  const toggleEmploymentType = (type: string) => {
+    setEmploymentType((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const handleStep3Submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     setLoading(true);
     setError("");
 
@@ -88,8 +109,7 @@ export default function CandidateRegisterPage() {
         .substring(0, 2)
         .toUpperCase() || "CN";
 
-      // Create candidate profile in Firestore
-      const docRef = await addDoc(collection(db, "candidates"), {
+      const candidateData = {
         auth_user_id: userId,
         name,
         username,
@@ -101,9 +121,18 @@ export default function CandidateRegisterPage() {
         country,
         company: company || "",
         education: education || "",
+        linkedin: linkedin || "",
+        github: github || "",
+        languages: languages || [],
+        employment_type: employmentType || [],
+        availability: availability || "",
+        relocation: relocation || "No",
         initials,
         created_at: serverTimestamp(),
-      });
+      };
+
+      // Create candidate profile in Firestore
+      const docRef = await addDoc(collection(db, "candidates"), candidateData);
 
       // Upsert candidate into Qdrant for vector search
       try {
@@ -112,15 +141,7 @@ export default function CandidateRegisterPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             firestoreDocId: docRef.id,
-            name,
-            title: profession,
-            skills,
-            bio: bio || "",
-            experience_level: experienceLevel,
-            work_preference: workPreference,
-            country,
-            company: company || "",
-            education: education || "",
+            ...candidateData,
           }),
         });
       } catch (qdrantError) {
@@ -194,7 +215,7 @@ export default function CandidateRegisterPage() {
         <div className="w-full max-w-md flex flex-col gap-4 py-8">
           {/* Header */}
           <div className="mb-2">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center justify-between mb-2">
               <h1
                 className="italic text-black"
                 style={{
@@ -203,16 +224,18 @@ export default function CandidateRegisterPage() {
                   lineHeight: "1.2",
                 }}
               >
-                {step === 1 ? "Welcome candidate" : "Build your profile"}
+                {step === 1 ? "Welcome candidate" : step === 2 ? "Build your profile" : "Just a few more details"}
               </h1>
-              <span className="px-2.5 py-0.5 bg-[#eef2ff] text-[#6366f1] rounded-full font-[Inter] text-[11px] font-semibold">
-                Step {step} of 2
+              <span className="px-2.5 py-0.5 bg-[#eef2ff] text-[#6366f1] rounded-full font-[Inter] text-[11px] font-semibold whitespace-nowrap ml-3">
+                Step {step} of 3
               </span>
             </div>
             <p className="font-[Inter] text-sm text-[#4c4546] mt-1">
               {step === 1
                 ? "Begin your journey with Yntern."
-                : "Tell us about your skills so recruiters can find you."}
+                : step === 2
+                ? "Tell us about your skills so recruiters can find you."
+                : "Help recruiters understand your preferences and availability."}
             </p>
           </div>
 
@@ -358,9 +381,9 @@ export default function CandidateRegisterPage() {
             </>
           )}
 
-          {/* Step 2: Profile & Skills */}
+          {/* Step 2: Work & Skills */}
           {step === 2 && (
-            <form className="flex flex-col gap-5 w-full" onSubmit={handleStep2Submit}>
+            <form className="flex flex-col gap-5 w-full" onSubmit={handleStep2Continue}>
               <div className="flex flex-row gap-5 w-full">
                 <div className="flex flex-col gap-2 flex-1">
                   <label
@@ -518,14 +541,151 @@ export default function CandidateRegisterPage() {
                   </button>
                 )}
                 <button
+                  className="flex-1 bg-black text-white font-[Inter] text-[11px] font-semibold tracking-[0.05em] rounded-full py-3 hover:opacity-80 transition-opacity duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                  type="submit"
+                >
+                  Continue
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    arrow_forward
+                  </span>
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Step 3: Links & Extras */}
+          {step === 3 && (
+            <form className="flex flex-col gap-5 w-full" onSubmit={handleStep3Submit}>
+              <div className="flex flex-row gap-5 w-full">
+                <div className="flex flex-col gap-2 flex-1">
+                  <label
+                    className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase"
+                    htmlFor="linkedin"
+                  >
+                    LinkedIn <span className="normal-case font-normal">(optional)</span>
+                  </label>
+                  <input
+                    className="w-full bg-transparent border-0 border-b border-[#cfc4c5] px-0 py-1.5 font-[Inter] text-sm text-[#1b1b1b] placeholder:text-[#7e7576] focus:ring-0 focus:border-black transition-colors outline-none"
+                    id="linkedin"
+                    name="linkedin"
+                    placeholder="linkedin.com/in/username"
+                    type="text"
+                    value={linkedin}
+                    onChange={(e) => setLinkedin(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-2 flex-1">
+                  <label
+                    className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase"
+                    htmlFor="github"
+                  >
+                    GitHub/Portfolio <span className="normal-case font-normal">(optional)</span>
+                  </label>
+                  <input
+                    className="w-full bg-transparent border-0 border-b border-[#cfc4c5] px-0 py-1.5 font-[Inter] text-sm text-[#1b1b1b] placeholder:text-[#7e7576] focus:ring-0 focus:border-black transition-colors outline-none"
+                    id="github"
+                    name="github"
+                    placeholder="github.com/username"
+                    type="text"
+                    value={github}
+                    onChange={(e) => setGithub(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase"
+                >
+                  Languages Spoken <span className="normal-case font-normal">(optional)</span>
+                </label>
+                <SkillTagInput skills={languages} onChange={setLanguages} maxSkills={5} />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase"
+                >
+                  Employment Type *
+                </label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {EMPLOYMENT_TYPES.map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => toggleEmploymentType(type)}
+                      className={`px-3 py-1.5 rounded-full font-[Inter] text-[12px] font-medium border transition-colors cursor-pointer ${
+                        employmentType.includes(type)
+                          ? "bg-[#eef2ff] border-[#6366f1] text-[#4338ca]"
+                          : "bg-white border-[#cfc4c5] text-[#4c4546] hover:border-[#6366f1]"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-row gap-5 w-full">
+                <div className="flex flex-col gap-2 flex-1">
+                  <label
+                    className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase"
+                    htmlFor="availability"
+                  >
+                    Availability *
+                  </label>
+                  <select
+                    className="w-full bg-transparent border-0 border-b border-[#cfc4c5] px-0 py-1.5 font-[Inter] text-sm text-[#1b1b1b] focus:ring-0 focus:border-black transition-colors outline-none cursor-pointer"
+                    id="availability"
+                    required
+                    value={availability}
+                    onChange={(e) => setAvailability(e.target.value)}
+                  >
+                    <option disabled value="">Select availability</option>
+                    {AVAILABILITY_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-2 flex-1">
+                  <label
+                    className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase"
+                    htmlFor="relocation"
+                  >
+                    Willing to Relocate?
+                  </label>
+                  <select
+                    className="w-full bg-transparent border-0 border-b border-[#cfc4c5] px-0 py-1.5 font-[Inter] text-sm text-[#1b1b1b] focus:ring-0 focus:border-black transition-colors outline-none cursor-pointer"
+                    id="relocation"
+                    value={relocation}
+                    onChange={(e) => setRelocation(e.target.value)}
+                  >
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-3">
+                <button
+                  className="flex-1 bg-transparent border border-[#cfc4c5] text-[#4c4546] font-[Inter] text-[11px] font-semibold tracking-[0.05em] rounded-full py-3 hover:border-black hover:text-black transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                  type="button"
+                  onClick={() => setStep(2)}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    arrow_back
+                  </span>
+                  Back
+                </button>
+                <button
                   className="flex-1 bg-black text-white font-[Inter] text-[11px] font-semibold tracking-[0.05em] rounded-full py-3 hover:opacity-80 transition-opacity duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || employmentType.length === 0 || !availability}
                 >
                   {loading ? "Creating Account..." : "Create Account"}
                   {!loading && (
                     <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-                      arrow_forward
+                      check
                     </span>
                   )}
                 </button>

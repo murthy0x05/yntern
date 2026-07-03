@@ -13,7 +13,24 @@ const NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { firestoreDocId, name, title, skills, bio, experience_level, work_preference, country, company, education } = body;
+    const { 
+      firestoreDocId, 
+      name, 
+      title, 
+      skills, 
+      bio, 
+      experience_level, 
+      work_preference, 
+      country, 
+      company, 
+      education,
+      linkedin,
+      github,
+      languages,
+      employment_type,
+      availability,
+      relocation
+    } = body;
 
     if (!firestoreDocId || !name || !title) {
       return Response.json(
@@ -34,6 +51,12 @@ export async function POST(request: Request) {
       country,
       company,
       education,
+      linkedin,
+      github,
+      languages,
+      employment_type,
+      availability,
+      relocation,
     });
 
     // Qdrant requires IDs to be UUID or uint. We'll generate a deterministic UUID from the Firestore ID.
@@ -58,6 +81,12 @@ export async function POST(request: Request) {
             country: country || "",
             company: company || "",
             education: education || "",
+            linkedin: linkedin || "",
+            github: github || "",
+            languages: languages || [],
+            employment_type: employment_type || [],
+            availability: availability || "",
+            relocation: relocation || "No",
             initials: name
               .split(" ")
               .map((n: string) => n[0])
