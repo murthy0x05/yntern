@@ -2,79 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-
-const STATS = [
-  {
-    label: "Profile Strength",
-    value: 78,
-    icon: "shield_person",
-    suffix: "%",
-    color: "#10b981",
-    bg: "#ecfdf5",
-  },
-  {
-    label: "Job Matches",
-    value: 12,
-    icon: "work",
-    suffix: "",
-    color: "#6366f1",
-    bg: "#eef2ff",
-  },
-  {
-    label: "Active Applications",
-    value: 4,
-    icon: "assignment",
-    suffix: "",
-    color: "#f59e0b",
-    bg: "#fffbeb",
-  },
-  {
-    label: "Interview Invites",
-    value: 2,
-    icon: "event",
-    suffix: "",
-    color: "#3b82f6",
-    bg: "#eff6ff",
-  },
-];
-
-const ACTIVITY = [
-  {
-    text: "You matched 94% with Staff Engineer at Stripe",
-    time: "1h ago",
-    icon: "bolt",
-    color: "#10b981",
-    bg: "#ecfdf5",
-  },
-  {
-    text: "AI recruiter from Vercel sent you a message",
-    time: "3h ago",
-    icon: "smart_toy",
-    color: "#8b5cf6",
-    bg: "#f5f3ff",
-  },
-  {
-    text: "Application for ML Engineer at DeepMind moved to Interview",
-    time: "5h ago",
-    icon: "trending_up",
-    color: "#3b82f6",
-    bg: "#eff6ff",
-  },
-  {
-    text: "Your profile analyzer found 3 improvement areas",
-    time: "1d ago",
-    icon: "auto_awesome",
-    color: "#f59e0b",
-    bg: "#fffbeb",
-  },
-  {
-    text: "New job match: Senior Frontend Engineer at Figma",
-    time: "1d ago",
-    icon: "work",
-    color: "#6366f1",
-    bg: "#eef2ff",
-  },
-];
+import { useAuth } from "@/lib/hooks/useAuth";
 
 function AnimatedNumber({
   value,
@@ -110,9 +38,16 @@ function AnimatedNumber({
 }
 
 export default function CandidateDashboard() {
+  const { user, loading } = useAuth();
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  // TODO: Fetch real stats from Firebase
+  const STATS: any[] = [];
+  
+  // TODO: Fetch real activity from Firebase
+  const ACTIVITY: any[] = [];
 
   return (
     <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-12 flex-1 flex flex-col gap-12 pt-6 pb-12">
@@ -126,7 +61,7 @@ export default function CandidateDashboard() {
             lineHeight: "1.2",
           }}
         >
-          {greeting}, Pavan
+          {greeting}{!loading && user ? `, ${user.email?.split('@')[0] || 'Candidate'}` : ''}
         </h1>
         <p className="font-[Inter] text-sm text-[#4c4546]">
           {new Date().toLocaleDateString("en-US", {
@@ -140,35 +75,42 @@ export default function CandidateDashboard() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-rise-delay">
-        {STATS.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white border border-[#cfc4c5] rounded-xl p-5 flex flex-col gap-3 hover:border-black transition-all duration-500 group"
-          >
+        {STATS.length > 0 ? (
+          STATS.map((stat) => (
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-              style={{ backgroundColor: stat.bg }}
+              key={stat.label}
+              className="bg-white border border-[#cfc4c5] rounded-xl p-5 flex flex-col gap-3 hover:border-black transition-all duration-500 group"
             >
-              <span
-                className="material-symbols-outlined text-[20px]"
-                style={{ color: stat.color }}
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                style={{ backgroundColor: stat.bg }}
               >
-                {stat.icon}
-              </span>
+                <span
+                  className="material-symbols-outlined text-[20px]"
+                  style={{ color: stat.color }}
+                >
+                  {stat.icon}
+                </span>
+              </div>
+              <div>
+                <p
+                  className="text-black font-semibold"
+                  style={{ fontSize: "28px", lineHeight: "1.2" }}
+                >
+                  <AnimatedNumber value={stat.value} suffix={stat.suffix} />
+                </p>
+                <p className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase mt-1">
+                  {stat.label}
+                </p>
+              </div>
             </div>
-            <div>
-              <p
-                className="text-black font-semibold"
-                style={{ fontSize: "28px", lineHeight: "1.2" }}
-              >
-                <AnimatedNumber value={stat.value} suffix={stat.suffix} />
-              </p>
-              <p className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase mt-1">
-                {stat.label}
-              </p>
-            </div>
+          ))
+        ) : (
+          <div className="col-span-full py-8 text-center bg-[#fafafa] rounded-xl border border-[#cfc4c5] border-dashed">
+            <span className="material-symbols-outlined text-4xl text-[#848484] mb-2">query_stats</span>
+            <p className="font-[Inter] text-[#4c4546]">No stats available yet.</p>
           </div>
-        ))}
+        )}
       </section>
 
       {/* Quick Actions */}
@@ -227,30 +169,37 @@ export default function CandidateDashboard() {
           </h3>
         </div>
         <div className="flex flex-col">
-          {ACTIVITY.map((item, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-4 py-4 border-b border-[#cfc4c5]/20 last:border-0 hover:bg-[#f3f3f3]/50 px-3 -mx-3 rounded-lg transition-colors group"
-            >
+          {ACTIVITY.length > 0 ? (
+            ACTIVITY.map((item, i) => (
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-transform group-hover:scale-110"
-                style={{ backgroundColor: item.bg }}
+                key={i}
+                className="flex items-start gap-4 py-4 border-b border-[#cfc4c5]/20 last:border-0 hover:bg-[#f3f3f3]/50 px-3 -mx-3 rounded-lg transition-colors group"
               >
-                <span
-                  className="material-symbols-outlined text-[18px]"
-                  style={{ color: item.color }}
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-transform group-hover:scale-110"
+                  style={{ backgroundColor: item.bg }}
                 >
-                  {item.icon}
+                  <span
+                    className="material-symbols-outlined text-[18px]"
+                    style={{ color: item.color }}
+                  >
+                    {item.icon}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-[Inter] text-sm text-black">{item.text}</p>
+                </div>
+                <span className="font-[Inter] text-[12px] text-[#848484] whitespace-nowrap shrink-0">
+                  {item.time}
                 </span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-[Inter] text-sm text-black">{item.text}</p>
-              </div>
-              <span className="font-[Inter] text-[12px] text-[#848484] whitespace-nowrap shrink-0">
-                {item.time}
-              </span>
+            ))
+          ) : (
+            <div className="py-12 text-center flex flex-col items-center">
+              <span className="material-symbols-outlined text-4xl text-[#848484] mb-2">history</span>
+              <p className="font-[Inter] text-[#4c4546]">No recent activity to show.</p>
             </div>
-          ))}
+          )}
         </div>
       </section>
     </div>

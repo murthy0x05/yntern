@@ -30,10 +30,8 @@ const TEMPLATES = [
   },
 ];
 
-import { db } from "@/utils/firebase/client";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-
 type Candidate = {
+  firestoreDocId: string;
   name: string;
   role: string;
   matchScore: number;
@@ -57,29 +55,29 @@ export default function HirePage() {
   const [outreachSent, setOutreachSent] = useState(false);
   const [matchedCandidates, setMatchedCandidates] = useState<Candidate[]>([]);
 
-  useEffect(() => {
-    async function fetchCandidates() {
-      try {
-        const q = query(collection(db, "candidates"), orderBy("match_score", "desc"), limit(6));
-        const querySnapshot = await getDocs(q);
-        const mapped = querySnapshot.docs.map((doc) => {
-          const c = doc.data();
-          return {
-            name: c.name,
-            role: c.title,
-            matchScore: c.match_score,
-            skills: c.skills,
-            experience: c.experience,
-            avatar: c.initials,
-          };
-        });
-        setMatchedCandidates(mapped);
-      } catch (err) {
-        console.error("Failed to fetch candidates:", err);
-      }
+  const searchCandidates = async (queryText: string) => {
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: queryText, limit: 10 }),
+      });
+      const data = await res.json();
+      const mapped = (data.results || []).map((c: any) => ({
+        firestoreDocId: c.firestoreDocId,
+        name: c.name,
+        role: c.title,
+        matchScore: c.similarity,
+        skills: c.skills || [],
+        experience: c.experience_level || "",
+        avatar: c.initials || c.name?.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase() || "??",
+      }));
+      setMatchedCandidates(mapped);
+    } catch (err) {
+      console.error("Search failed:", err);
+      setMatchedCandidates([]);
     }
-    fetchCandidates();
-  }, []);
+  };
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -121,6 +119,9 @@ export default function HirePage() {
     setOutreachSent(false);
     setSelectedCandidates(new Set());
     setDeadline("");
+
+    // Kick off the Qdrant search with the JD text
+    searchCandidates(jdText);
   };
 
   const handleNewSearch = () => {

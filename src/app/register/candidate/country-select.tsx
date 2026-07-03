@@ -92,13 +92,19 @@ const COUNTRIES = [
   "Vietnam",
 ];
 
-export function CountrySelect() {
+interface CountrySelectProps {
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+export function CountrySelect({ value, onChange }: CountrySelectProps) {
   return (
     <select
       className="bottom-line-select w-full bg-transparent border-0 border-b border-[#cfc4c5] px-0 py-1.5 font-[Inter] text-sm text-[#1b1b1b] focus:ring-0 focus:border-black transition-colors outline-none cursor-pointer"
       id="country"
       name="country"
-      defaultValue=""
+      value={value ?? ""}
+      onChange={(e) => onChange?.(e.target.value)}
     >
       <option disabled value="">
         Select country

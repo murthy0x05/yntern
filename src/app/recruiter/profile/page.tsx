@@ -1,98 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
-const RECRUITER = {
-  name: "Sarah Jenkins",
-  initials: "SJ",
-  title: "Senior Technical Recruiter",
-  company: "Yntern Inc.",
-  email: "sarah.jenkins@yntern.com",
-  phone: "+1 (415) 928-3047",
-  location: "San Francisco, CA",
-  timezone: "Pacific Time (PT)",
-  linkedin: "linkedin.com/in/sarahjenkins",
-  bio: "Passionate about connecting exceptional talent with transformative opportunities. Specializing in engineering and product leadership hiring across startups and scale-ups. 8+ years of full-cycle recruiting experience.",
-  joinedDate: "January 2024",
-  specializations: [
-    "Engineering",
-    "Product",
-    "Design",
-    "Data Science",
-    "DevOps",
-  ],
-  industries: [
-    "SaaS",
-    "FinTech",
-    "AI/ML",
-    "Developer Tools",
-    "Cloud Infrastructure",
-  ],
-};
-
-const HIRING_STATS = [
-  {
-    label: "Total Hires",
-    value: 127,
-    icon: "person_check",
-    color: "#10b981",
-    bg: "#ecfdf5",
-  },
-  {
-    label: "Active Roles",
-    value: 3,
-    icon: "work",
-    color: "#6366f1",
-    bg: "#eef2ff",
-  },
-  {
-    label: "Avg. Time to Fill",
-    value: 24,
-    suffix: "d",
-    icon: "schedule",
-    color: "#f59e0b",
-    bg: "#fffbeb",
-  },
-  {
-    label: "Offer Accept Rate",
-    value: 92,
-    suffix: "%",
-    icon: "trending_up",
-    color: "#3b82f6",
-    bg: "#eff6ff",
-  },
-];
-
-const RECENT_HIRES = [
-  {
-    name: "Alex Morgan",
-    role: "Staff Engineer",
-    company: "Stripe → Yntern",
-    date: "Mar 2026",
-    initials: "AM",
-  },
-  {
-    name: "Priya Nair",
-    role: "Product Lead",
-    company: "Meta → Yntern",
-    date: "Feb 2026",
-    initials: "PN",
-  },
-  {
-    name: "Kevin Liu",
-    role: "Data Scientist",
-    company: "Netflix → Yntern",
-    date: "Jan 2026",
-    initials: "KL",
-  },
-  {
-    name: "Diana Rossi",
-    role: "UX Lead",
-    company: "Figma → Yntern",
-    date: "Dec 2025",
-    initials: "DR",
-  },
-];
+import { useAuth } from "@/lib/hooks/useAuth";
+import Link from "next/link";
 
 const PREFERENCES = [
   {
@@ -142,6 +52,7 @@ function Toggle({
 }
 
 export default function ProfilePage() {
+  const { user, loading } = useAuth();
   const [prefs, setPrefs] = useState(PREFERENCES);
   const [activeTab, setActiveTab] = useState<"overview" | "settings">(
     "overview",
@@ -155,12 +66,47 @@ export default function ProfilePage() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-12 flex-1 flex flex-col gap-10 pt-6 pb-12 animate-pulse">
+        <div className="h-32 bg-[#e5e5e5] rounded-2xl w-full max-w-2xl mb-8" />
+        <div className="h-64 bg-[#e5e5e5] rounded-2xl w-full" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center h-[calc(100vh-56px)] bg-[#fafafa]">
+        <h2 className="text-xl font-semibold mb-4">Please log in to view your profile</h2>
+        <Link href="/login" className="px-6 py-2 bg-black text-white rounded-full">
+          Go to Login
+        </Link>
+      </div>
+    );
+  }
+
+  // Fallback defaults for properties that might not be on the user object yet
+  const displayName = user.displayName || "Recruiter";
+  const initials = displayName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase() || "RC";
+    
+  const email = user.email || "No email provided";
+  
+  // Real stats will be fetched from Firestore
+  const HIRING_STATS: any[] = [];
+  const RECENT_HIRES: any[] = [];
+
   return (
     <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-12 flex-1 flex flex-col gap-10 pt-6 pb-12">
       {/* Profile Header */}
       <section className="flex items-start gap-6 animate-fade-rise">
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white text-[28px] font-semibold shrink-0 shadow-[0_4px_20px_rgba(99,102,241,0.25)]">
-          {RECRUITER.initials}
+          {initials}
         </div>
         <div className="flex-1">
           <h1
@@ -171,29 +117,23 @@ export default function ProfilePage() {
               lineHeight: "1.2",
             }}
           >
-            {RECRUITER.name}
+            {displayName}
           </h1>
           <p className="font-[Inter] text-[14px] text-[#4c4546] mt-1">
-            {RECRUITER.title} · {RECRUITER.company}
+            Recruiter · Yntern
           </p>
           <div className="flex items-center gap-4 mt-3">
             <span className="flex items-center gap-1.5 font-[Inter] text-[12px] text-[#848484]">
               <span className="material-symbols-outlined text-[16px]">
                 location_on
               </span>
-              {RECRUITER.location}
-            </span>
-            <span className="flex items-center gap-1.5 font-[Inter] text-[12px] text-[#848484]">
-              <span className="material-symbols-outlined text-[16px]">
-                schedule
-              </span>
-              {RECRUITER.timezone}
+              Remote
             </span>
             <span className="flex items-center gap-1.5 font-[Inter] text-[12px] text-[#848484]">
               <span className="material-symbols-outlined text-[16px]">
                 calendar_today
               </span>
-              Joined {RECRUITER.joinedDate}
+              Joined {new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
             </span>
           </div>
         </div>
@@ -240,7 +180,7 @@ export default function ProfilePage() {
               About
             </h3>
             <p className="font-[Inter] text-[14px] text-[#1b1b1b] leading-relaxed">
-              {RECRUITER.bio}
+              Passionate about connecting exceptional talent with transformative opportunities. Add your bio here once the profile editor is integrated.
             </p>
           </section>
 
@@ -256,21 +196,9 @@ export default function ProfilePage() {
                   {
                     icon: "mail",
                     label: "Email",
-                    value: RECRUITER.email,
+                    value: email,
                     color: "#6366f1",
-                  },
-                  {
-                    icon: "phone",
-                    label: "Phone",
-                    value: RECRUITER.phone,
-                    color: "#10b981",
-                  },
-                  {
-                    icon: "link",
-                    label: "LinkedIn",
-                    value: RECRUITER.linkedin,
-                    color: "#3b82f6",
-                  },
+                  }
                 ].map((item) => (
                   <div key={item.label} className="flex items-center gap-3">
                     <div
@@ -302,28 +230,13 @@ export default function ProfilePage() {
               <h3 className="font-[Inter] text-[12px] font-semibold tracking-[0.08em] text-[#4c4546] uppercase">
                 Specializations
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {RECRUITER.specializations.map((s) => (
-                  <span
-                    key={s}
-                    className="px-3.5 py-1.5 bg-[#eef2ff] border border-[#c7d2fe]/40 rounded-full font-[Inter] text-[12px] font-medium text-[#4338ca]"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-              <h3 className="font-[Inter] text-[12px] font-semibold tracking-[0.08em] text-[#4c4546] uppercase mt-2">
-                Industries
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {RECRUITER.industries.map((ind) => (
-                  <span
-                    key={ind}
-                    className="px-3.5 py-1.5 bg-[#ecfdf5] border border-[#a7f3d0]/40 rounded-full font-[Inter] text-[12px] font-medium text-[#059669]"
-                  >
-                    {ind}
-                  </span>
-                ))}
+              <div className="flex flex-col items-center justify-center h-full gap-2 py-4">
+                <span className="material-symbols-outlined text-[24px] text-[#cfc4c5]">
+                  category
+                </span>
+                <p className="font-[Inter] text-[13px] text-[#848484]">
+                  No specializations added yet
+                </p>
               </div>
             </section>
           </div>
@@ -333,38 +246,49 @@ export default function ProfilePage() {
             <h3 className="font-[Inter] text-[12px] font-semibold tracking-[0.08em] text-[#4c4546] uppercase mb-4">
               Hiring Performance
             </h3>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {HIRING_STATS.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="bg-white border border-[#cfc4c5] rounded-xl p-5 flex flex-col gap-3 hover:border-black transition-all duration-500 group"
-                >
+            {HIRING_STATS.length > 0 ? (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {HIRING_STATS.map((stat) => (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: stat.bg }}
+                    key={stat.label}
+                    className="bg-white border border-[#cfc4c5] rounded-xl p-5 flex flex-col gap-3 hover:border-black transition-all duration-500 group"
                   >
-                    <span
-                      className="material-symbols-outlined text-[20px]"
-                      style={{ color: stat.color }}
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                      style={{ backgroundColor: stat.bg }}
                     >
-                      {stat.icon}
-                    </span>
+                      <span
+                        className="material-symbols-outlined text-[20px]"
+                        style={{ color: stat.color }}
+                      >
+                        {stat.icon}
+                      </span>
+                    </div>
+                    <div>
+                      <p
+                        className="text-black font-semibold"
+                        style={{ fontSize: "28px", lineHeight: "1.2" }}
+                      >
+                        {stat.value}
+                        {stat.suffix || ""}
+                      </p>
+                      <p className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase mt-1">
+                        {stat.label}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p
-                      className="text-black font-semibold"
-                      style={{ fontSize: "28px", lineHeight: "1.2" }}
-                    >
-                      {stat.value}
-                      {stat.suffix || ""}
-                    </p>
-                    <p className="font-[Inter] text-[12px] font-semibold tracking-[0.05em] text-[#4c4546] uppercase mt-1">
-                      {stat.label}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white border border-[#cfc4c5] rounded-xl p-10 flex flex-col items-center justify-center gap-3">
+                <span className="material-symbols-outlined text-[32px] text-[#cfc4c5]">
+                  bar_chart
+                </span>
+                <p className="font-[Inter] text-[14px] text-[#4c4546] text-center max-w-sm">
+                  Your hiring performance metrics will appear here once you start recruiting candidates.
+                </p>
+              </div>
+            )}
           </section>
 
           {/* Recent Hires */}
@@ -373,39 +297,50 @@ export default function ProfilePage() {
               Recent Hires
             </h3>
             <div className="bg-white border border-[#cfc4c5] rounded-xl overflow-hidden">
-              {RECENT_HIRES.map((hire, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-4 px-6 py-4 hover:bg-[#fafafa] transition-colors ${
-                    i < RECENT_HIRES.length - 1
-                      ? "border-b border-[#cfc4c5]/20"
-                      : ""
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white text-[12px] font-semibold shrink-0">
-                    {hire.initials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-[Inter] text-[14px] font-semibold text-black">
-                      {hire.name}
+              {RECENT_HIRES.length > 0 ? (
+                RECENT_HIRES.map((hire, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-4 px-6 py-4 hover:bg-[#fafafa] transition-colors ${
+                      i < RECENT_HIRES.length - 1
+                        ? "border-b border-[#cfc4c5]/20"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white text-[12px] font-semibold shrink-0">
+                      {hire.initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-[Inter] text-[14px] font-semibold text-black">
+                        {hire.name}
+                      </p>
+                      <p className="font-[Inter] text-[12px] text-[#4c4546]">
+                        {hire.role}
+                      </p>
+                    </div>
+                    <p className="font-[Inter] text-[12px] text-[#848484] hidden sm:block">
+                      {hire.company}
                     </p>
-                    <p className="font-[Inter] text-[12px] text-[#4c4546]">
-                      {hire.role}
-                    </p>
-                  </div>
-                  <p className="font-[Inter] text-[12px] text-[#848484] hidden sm:block">
-                    {hire.company}
-                  </p>
-                  <span className="font-[Inter] text-[12px] text-[#848484] whitespace-nowrap">
-                    {hire.date}
-                  </span>
-                  <span className="w-6 h-6 rounded-full bg-[#ecfdf5] flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[14px] text-[#10b981]">
-                      check
+                    <span className="font-[Inter] text-[12px] text-[#848484] whitespace-nowrap">
+                      {hire.date}
                     </span>
+                    <span className="w-6 h-6 rounded-full bg-[#ecfdf5] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[14px] text-[#10b981]">
+                        check
+                      </span>
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="p-10 flex flex-col items-center justify-center gap-3">
+                  <span className="material-symbols-outlined text-[32px] text-[#cfc4c5]">
+                    group_add
                   </span>
+                  <p className="font-[Inter] text-[14px] text-[#4c4546] text-center">
+                    No recent hires to display yet.
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </section>
         </div>
