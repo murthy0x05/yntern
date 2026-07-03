@@ -5,6 +5,10 @@ import {
   ensureCollection,
   buildEmbeddingText,
 } from "@/utils/qdrant/client";
+import { v5 as uuidv5 } from "uuid";
+
+// Define a namespace UUID for Yntern Candidates
+const NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
 
 export async function POST(request: Request) {
   try {
@@ -32,11 +36,14 @@ export async function POST(request: Request) {
       education,
     });
 
+    // Qdrant requires IDs to be UUID or uint. We'll generate a deterministic UUID from the Firestore ID.
+    const qdrantId = uuidv5(firestoreDocId, NAMESPACE);
+
     // Upsert using Qdrant Cloud Inference — pass text + model instead of a raw vector
     await qdrant.upsert(COLLECTION_NAME, {
       points: [
         {
-          id: firestoreDocId,
+          id: qdrantId,
           vector: {
             text: embeddingText,
             model: EMBEDDING_MODEL,
