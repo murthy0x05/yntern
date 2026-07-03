@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 const NAV_ITEMS = [
   { label: "Home", icon: "home", href: "/recruiter", color: "#6366f1" },
@@ -36,6 +37,15 @@ export default function DashboardLayout({
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const displayName = user?.displayName || "Recruiter";
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
 
   const isActive = (href: string) => {
     if (href === "/recruiter") return pathname === "/recruiter";
@@ -154,11 +164,11 @@ export default function DashboardLayout({
             href="/recruiter/profile"
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white text-[11px] font-semibold shrink-0">
-              SJ
+              {initials}
             </div>
             {!collapsed && (
-              <span className="font-[Inter] text-sm font-medium text-black">
-                Sarah Jenkins
+              <span className="font-[Inter] text-sm font-medium text-black truncate w-full">
+                {displayName}
               </span>
             )}
           </Link>
